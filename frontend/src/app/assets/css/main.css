@@ -1,0 +1,61 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Incluye las pantallas y entidades FSD situadas fuera del srcDir de Nuxt. */
+@source "../../../";
+
+@theme static {
+  --font-sans: 'Public Sans', sans-serif;
+
+  /* Naranja corporativo (DESIGN.md) — rampa anclada en el hex vinculante #D9550D */
+  --color-orange-50: #FDF3EC;
+  --color-orange-100: #F5D9C4;
+  --color-orange-200: #EFC3A2;
+  --color-orange-300: #E5A16E;
+  --color-orange-400: #E07E42;
+  --color-orange-500: #D9550D;
+  --color-orange-600: #C24C0B;
+  --color-orange-700: #B8420A;
+  --color-orange-800: #963608;
+  --color-orange-900: #742A06;
+  --color-orange-950: #4A1B04;
+
+  /* Neutros cálidos de papel (DESIGN.md — "El escritorio del auditor") */
+  --color-paper-bg: #FAF9F7;
+  --color-paper-surface: #FFFFFF;
+  --color-paper-border: #E4E1DC;
+  --color-paper-ink: #26241F;
+  --color-paper-ink-muted: #6B6862;
+}
+
+:root {
+  --ui-bg: var(--color-paper-bg);
+  --ui-bg-elevated: #F3F1ED;
+  --ui-bg-accented: #E4E1DC;
+  --ui-text: var(--color-paper-ink);
+  --ui-text-highlighted: var(--color-paper-ink);
+  --ui-text-muted: var(--color-paper-ink-muted);
+  --ui-text-dimmed: var(--color-paper-ink-muted);
+  --ui-border: var(--color-paper-border);
+  --ui-primary: var(--color-orange-700);
+  --ui-error: #B33429;
+  --ui-success: #2F7D4F;
+}
+
+.dark {
+  --ui-bg: #211F1B;
+  --ui-bg-elevated: #2D2A25;
+  --ui-bg-accented: #3C3831;
+  --ui-text: #EEEAE3;
+  --ui-text-highlighted: #EEEAE3;
+  --ui-text-muted: #BAB4A9;
+  --ui-text-dimmed: #BAB4A9;
+  --ui-border: #514B41;
+  --ui-primary: #E5A16E;
+  --ui-error: #F29A8D;
+  --ui-success: #89CDA1;
+}
+
+body { font-size: 15px; }
+input { caret-color: var(--ui-primary); }
+::selection { background: var(--color-orange-100); color: var(--color-paper-ink); }
