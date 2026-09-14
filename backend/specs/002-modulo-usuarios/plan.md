@@ -153,3 +153,27 @@ no existe ninguna carpeta de tests en el repo.
 |-----------|------------|---------------------------------------|
 | Crear `src/shared/database.py` y `src/shared/uow.py` desde cero | Sin ellos no hay forma de persistir `Usuario` (ni de que `archivos` funcione); son infraestructura, no dominio ni módulo nuevo | Omitirlos deja el módulo sin persistencia real: solo se podrían entregar `domain`+`application` con dobles en memoria, sin cumplir FR-001..FR-009 de forma end-to-end. Se documenta para que el usuario confirme si quiere esta infraestructura ahora o prefiere acotar la primera entrega a dominio+casos de uso sin API/BD real. |
 | Bootstrap de Alembic (no existe en el repo) | CLAUDE.md exige migraciones vía Alembic para persistir el esquema de `usuarios` | Sin migraciones, la tabla `usuarios` no puede crearse de forma reproducible/auditable |
+
+**Resuelto (2026-09-14)**: el usuario confirmó que quiere la persistencia
+real ahora. `src/shared/database.py` y `src/shared/uow.py` ya existían
+(creados en algún momento para `archivos`, sin commitear a este plan) y se
+reutilizan tal cual. Se implementó `infrastructure` de `usuarios`
+(`UsuarioORM`, `UsuarioRepositorySqlAlchemy`) y se corrigió el bootstrap de
+Alembic, que existía como scaffold sin terminar (`target_metadata = None`,
+driver `asyncpg` incompatible con el `engine_from_config` síncrono que usa
+`env.py`). Ver `tasks.md` Fase 7 para el detalle y una limitación pendiente:
+la migración inicial se escribió a mano (sin `--autogenerate`) por no haber
+Postgres disponible en el entorno de desarrollo para generarla/ejecutarla; el
+metadata de `archivos` (`DocumentoORM`) tampoco está registrado en
+`env.py` — preexistente, fuera del alcance de este cambio.
+
+**Resuelto (2026-09-14, continuación)**: la API/router de `usuarios` ya no
+está fuera de alcance — el usuario pidió los DTO y después corrigió un
+router que había empezado a escribir. Implementados `api/dto.py` y
+`api/router.py` con los 5 endpoints de `contracts/usuarios-api.md`. Ver
+`tasks.md` Fase 8. Queda una desviación del Principio I (Test-First) sin
+resolver: no hay test de router (`tests/integration/usuarios/
+test_usuario_router.py`, previsto más abajo en este mismo documento) porque
+`httpx` no está instalado y añadirlo requiere aprobación previa — T046 en
+`tasks.md`. Tampoco existe `main.py`/bootstrap de FastAPI real: el router no
+está montado en ninguna app.

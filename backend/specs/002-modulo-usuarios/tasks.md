@@ -266,6 +266,102 @@ módulo `usuarios`
 
 ---
 
+## Phase 7: Infraestructura de persistencia (decisión posterior del usuario)
+
+**Purpose**: cubrir la persistencia real que `plan.md` §"Project Structure"
+había dejado documentada pero fuera de alcance (ver Complexity Tracking de
+`plan.md`). El usuario confirmó que la quiere ahora.
+
+**Alcance**: capa `infrastructure` de `usuarios` sobre `shared/database.py` y
+`shared/uow.py` (ya existían, creados para `archivos`), más el bootstrap de
+Alembic (existía como scaffold sin usar). Sin API/router: sigue fuera de
+alcance de esta entrega.
+
+- [x] T037 Implementar `UsuarioORM` en
+  `src/modules/usuarios/Infrastructure/entities/usuario.py` (tabla
+  `usuarios`: `id`, `correo` único indexado, `rol`, `departamento`, `activo`,
+  `creado_en`, `dado_de_baja_en`), heredando de `shared.database.Base`
+- [x] T038 Implementar `UsuarioRepositorySqlAlchemy` (puerto
+  `UsuarioRepository` de T011) en
+  `src/modules/usuarios/Infrastructure/persistence/usuario_repository.py`
+  con `to_domain`/`to_orm` (traduce `Correo`/`Departamento`/`Rol` ↔ columnas
+  planas) y un `UnitOfWork` inyectado — sin `commit()` propio, delega en el
+  `UnitOfWork`
+- [x] T039 [P] Test: `to_orm` y `to_domain` son inversas (round-trip) y
+  serializan `Rol`/`Correo`/`Departamento` a texto plano, en
+  `tests/integration/usuarios/test_usuario_repository_mapping.py` — sin BD
+  real (Constitution: nada de llamadas reales en tests)
+- [x] T040 Corregir `alembic/env.py`: registrar `target_metadata =
+  Base.metadata` (estaba en `None`, autogenerate no detectaba nada) e
+  importar `UsuarioORM` para que quede en el metadata
+- [x] T041 Corregir `alembic.ini`: `sqlalchemy.url` usaba el driver
+  `asyncpg`, incompatible con el `engine_from_config` síncrono de
+  `env.py` — CLAUDE.md exige `psycopg` para herramientas/Alembic
+- [x] T042 Migración inicial `alembic/versions/1ad451f3955c_crear_tabla_usuarios.py`
+  (`create_table usuarios` + índice único en `correo`) — escrita a mano, no
+  vía `--autogenerate`: no hay Postgres disponible en este entorno para
+  generarla/ejecutarla contra una BD real; pendiente de `alembic upgrade
+  head` en un entorno con BD
+
+**Nota de alcance no resuelta**: `alembic/env.py` solo registra el metadata
+de `usuarios`. El módulo `archivos` (`DocumentoORM`) sigue sin aparecer en
+`target_metadata` — ya estaba así antes de esta entrega y no se ha tocado por
+no ser parte de lo pedido; si se genera una migración con `--autogenerate`
+antes de resolverlo, no incluirá la tabla `documentos`.
+
+**Checkpoint**: `domain`+`application`+`infrastructure` de `usuarios`
+completos y con tests en verde; despliegue real pendiente de ejecutar
+`alembic upgrade head` contra una base de datos disponible
+
+---
+
+## Phase 8: API — `router.py` y `dto.py` (decisión posterior del usuario)
+
+**Purpose**: exponer el módulo `usuarios` por HTTP según
+`contracts/usuarios-api.md`, que ya documentaba este contrato como diseño de
+Fase 1 aunque su implementación estaba fuera del alcance original. El
+usuario pidió los DTO y luego corregir el router.
+
+**Alcance**: capa `api` completa (`dto.py` + `router.py`), los 5 endpoints
+del contrato. Sigue fuera de alcance el montaje en una app FastAPI real
+(`main.py`) — no existe bootstrap de FastAPI en el repo todavía.
+
+- [x] T043 Implementar `UsuarioRead`, `RegistrarUsuarioDTO`,
+  `ActualizarUsuarioDTO` en `src/modules/usuarios/api/dto.py`. `UsuarioRead`
+  no usa `from_attributes`: `correo`/`departamento` son value objects
+  (`Correo`/`Departamento`), no `str`, así que se construye vía
+  `from_dominio(usuario)` en lugar de `model_validate`
+- [x] T044 Implementar `router.py` (`APIRouter(prefix="/usuarios",
+  tags=["Usuarios"])`) con los 5 endpoints de `contracts/usuarios-api.md`:
+  `POST ""`, `GET ""`, `GET "/{correo}"`, `PATCH "/{correo}"`, `DELETE
+  "/{correo}"`. Cada endpoint abre su propio `UnitOfWork`, construye
+  `UsuarioRepositorySqlAlchemy(uow)` y llama al caso de uso correspondiente;
+  hace `commit()` solo en los que escriben
+- [x] T045 `error_http`: tabla de excepción de dominio → código HTTP según
+  el contrato (`CorreoYaRegistradoError`/`UsuarioInactivoError` → 409,
+  `UsuarioNoEncontradoError` → 404, `RolInvalidoError`/
+  `FormatoCorreoInvalidoError`/`DatoObligatorioFaltanteError` → 422) — no el
+  502 genérico que tenía el borrador inicial del router
+
+**⚠️ Deuda de TDD reconocida (Principio I de la constitución)**: T044/T045 se
+implementaron sin test que los dirigiera primero — se corrigió un router ya
+escrito por el usuario, no se hizo Red-Green-Refactor. No existe todavía
+`tests/integration/usuarios/test_usuario_router.py` (sí previsto en
+`plan.md` Project Structure). Sin `httpx` instalado (necesario para
+`TestClient` de FastAPI), añadirlo requiere aprobación previa
+(Principio III / CLAUDE.md §8). Pendiente:
+
+- [ ] T046 [US1-US3] Decidir si se añade `httpx` como dependencia de test
+  para poder escribir `tests/integration/usuarios/test_usuario_router.py`
+  (camino feliz + al menos un caso de error mapeado por endpoint) — requiere
+  aprobación previa antes de ejecutarse
+
+**Checkpoint**: `usuarios` completo de punta a punta a nivel de código
+(`domain`+`application`+`infrastructure`+`api`); sin test de router y sin
+montar en una app FastAPI real
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

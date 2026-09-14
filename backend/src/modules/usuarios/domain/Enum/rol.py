@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Rol(str, Enum):
+class Rol(StrEnum):
     """Catálogo cerrado de roles del PG09 §1.1."""
 
     DETECTOR = "DETECTOR"

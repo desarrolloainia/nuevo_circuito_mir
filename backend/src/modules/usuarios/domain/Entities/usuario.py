@@ -51,7 +51,7 @@ class Usuario:
         self, rol: Rol | None = None, departamento: Departamento | None = None
     ) -> None:
         if not self.activo:
-            raise UsuarioInactivoError(str(self.correo.valor))
+            raise UsuarioInactivoError(self.correo.valor)
         if rol is not None:
             self.rol = rol
         if departamento is not None:
