@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from modules.usuarios.domain.Entities.usuario import Usuario
+
+
+class UsuarioRepository(Protocol):
+    async def guardar(self, usuario: Usuario) -> None: ...
+
+    async def obtener_por_correo(self, correo: str) -> Usuario | None: ...
+
+    async def listar_activos(self) -> list[Usuario]: ...
+
+    async def actualizar(self, usuario: Usuario) -> None: ...
