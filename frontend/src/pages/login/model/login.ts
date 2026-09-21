@@ -12,6 +12,7 @@ export const roleOptions: { label: string, value: components['schemas']['Rol'] }
 
 export interface AccessState {
   email: string
+  nombre: string
   department: string
   role: components['schemas']['Rol']
 }
@@ -32,6 +33,7 @@ export function loginError(error: unknown): string {
 
 export function validateRegistration(state: AccessState): FormError[] {
   const errors = validateEmail(state)
+  if (!state.nombre.trim()) errors.push({ name: 'nombre', message: 'Introduce tu nombre.' })
   if (!state.department.trim()) errors.push({ name: 'department', message: 'Introduce tu departamento.' })
   if (!roleOptions.some(option => option.value === state.role)) errors.push({ name: 'role', message: 'Selecciona un rol válido.' })
   return errors

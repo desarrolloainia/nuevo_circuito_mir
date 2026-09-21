@@ -10,7 +10,7 @@ dependencies = [
     "azure-identity>=1.25.3",
     "fastapi[standard]>=0.141.1",
     "msgraph-sdk>=1.62.0",
-    "psycopg>=3.3.5",
+    "psycopg[binary]>=3.3.5",
     "pydantic-settings>=2.15.0",
     "sqlalchemy>=2.0.52",
 ]
@@ -20,8 +20,8 @@ pythonpath = [".", "src"]
 
 [dependency-groups]
 dev = [
-    "basedpyright>=1.39.10",
     "pytest>=9.1.1",
     "pre-commit>=4.6.2",
     "ruff>=0.16.4",
+    "basedpyright>=1.40.1",
 ]

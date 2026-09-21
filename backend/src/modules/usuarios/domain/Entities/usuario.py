@@ -34,6 +34,7 @@ class Departamento:
 @dataclass
 class Usuario:
     correo: Correo
+    nombre: str
     rol: Rol
     departamento: Departamento
     id: UUID = field(default_factory=uuid4)
@@ -48,7 +49,10 @@ class Usuario:
         self.dado_de_baja_en = datetime.now(UTC)
 
     def actualizar(
-        self, rol: Rol | None = None, departamento: Departamento | None = None
+        self,
+        rol: Rol | None = None,
+        departamento: Departamento | None = None,
+        nombre: str | None = None,
     ) -> None:
         if not self.activo:
             raise UsuarioInactivoError(self.correo.valor)
@@ -56,3 +60,5 @@ class Usuario:
             self.rol = rol
         if departamento is not None:
             self.departamento = departamento
+        if nombre is not None:
+            self.nombre = nombre

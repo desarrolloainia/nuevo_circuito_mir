@@ -19,7 +19,11 @@ def test_alta_con_datos_validos_deja_el_usuario_obtenible():
         repo = UsuarioRepositoryEnMemoria()
 
         await registrar_usuario(
-            repo, correo="tecnico@ainia.test", rol="TECNICO_CLD", departamento="Calidad"
+            repo,
+            correo="tecnico@ainia.test",
+            nombre="Ana Técnico",
+            rol="TECNICO_CLD",
+            departamento="Calidad",
         )
 
         usuario = await repo.obtener_por_correo("tecnico@ainia.test")
@@ -33,13 +37,18 @@ def test_alta_con_correo_duplicado_lanza_error():
     async def caso() -> None:
         repo = UsuarioRepositoryEnMemoria()
         await registrar_usuario(
-            repo, correo="tecnico@ainia.test", rol="TECNICO_CLD", departamento="Calidad"
+            repo,
+            correo="tecnico@ainia.test",
+            nombre="Ana Técnico",
+            rol="TECNICO_CLD",
+            departamento="Calidad",
         )
 
         with pytest.raises(CorreoYaRegistradoError):
             await registrar_usuario(
                 repo,
                 correo="tecnico@ainia.test",
+                nombre="Ana Técnico",
                 rol="EJECUTOR",
                 departamento="Producción",
             )
@@ -53,7 +62,11 @@ def test_alta_con_departamento_ausente_lanza_error():
 
         with pytest.raises(DatoObligatorioFaltanteError):
             await registrar_usuario(
-                repo, correo="tecnico@ainia.test", rol="TECNICO_CLD", departamento=""
+                repo,
+                correo="tecnico@ainia.test",
+                nombre="Ana Técnico",
+                rol="TECNICO_CLD",
+                departamento="",
             )
 
     asyncio.run(caso())
@@ -67,6 +80,7 @@ def test_alta_con_correo_formato_invalido_lanza_error():
             await registrar_usuario(
                 repo,
                 correo="correo-invalido",
+                nombre="Ana Técnico",
                 rol="TECNICO_CLD",
                 departamento="Calidad",
             )
@@ -82,6 +96,7 @@ def test_alta_con_rol_fuera_de_catalogo_lanza_error():
             await registrar_usuario(
                 repo,
                 correo="tecnico@ainia.test",
+                nombre="Ana Técnico",
                 rol="ROL_INVENTADO",
                 departamento="Calidad",
             )

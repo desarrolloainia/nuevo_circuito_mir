@@ -17,6 +17,7 @@ def test_consultar_usuario_por_correo_devuelve_sus_datos():
         await repo.guardar(
             Usuario(
                 correo=Correo("tecnico@ainia.test"),
+                nombre="Ana Técnico",
                 rol=Rol.TECNICO_CLD,
                 departamento=Departamento("Calidad"),
             )

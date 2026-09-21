@@ -16,6 +16,7 @@ class UsuarioORM(Base):
     )
     correo: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
     rol: Mapped[str] = mapped_column(String, nullable=False)
+    nombre: Mapped[str] = mapped_column(String, nullable=False)
     departamento: Mapped[str] = mapped_column(String, nullable=False)
     activo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

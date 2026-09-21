@@ -6,7 +6,7 @@ import { loginError, roleOptions, validateEmail, validateRegistration, type Acce
 import MirWorkflowIllustration from './MirWorkflowIllustration.vue'
 
 useHead({ title: 'Acceso · Circuito MIR' })
-const state = reactive<AccessState>({ email: '', department: '', role: 'DETECTOR' })
+const state = reactive<AccessState>({ email: '', nombre: '', department: '', role: 'DETECTOR' })
 const mode = ref('login')
 const pending = ref(false)
 const error = ref('')
@@ -17,14 +17,14 @@ async function submit(): Promise<void> {
   pending.value = true
   try {
     const user = mode.value === 'register'
-      ? await registerUser({ correo: state.email.trim(), departamento: state.department.trim(), rol: state.role })
+      ? await registerUser({ correo: state.email.trim(), nombre: state.nombre.trim(), departamento: state.department.trim(), rol: state.role })
       : await getUserByEmail(state.email.trim())
     if (!user.activo) {
       error.value = 'Tu usuario está dado de baja. Contacta con el administrador.'
       return
     }
     rememberUser(user)
-    await navigateTo('/en-construccion')
+    await navigateTo(user.rol === 'DETECTOR' ? '/mis-mir' : '/en-construccion')
   } catch (cause) {
     error.value = loginError(cause)
   } finally {
@@ -101,6 +101,24 @@ async function submit(): Promise<void> {
                 />
               </UFormField>
               <template v-if="mode === 'register'">
+                <UFormField
+                  label="Nombre"
+                  name="nombre"
+                  required
+                >
+                  <UInput
+                    v-model="state.nombre"
+                    name="nombre"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="Tu nombre completo"
+                    size="xl"
+                    class="w-full"
+                    :disabled="pending"
+                    :aria-describedby="error ? 'login-error' : undefined"
+                    @update:model-value="error = ''"
+                  />
+                </UFormField>
                 <UFormField
                   label="Departamento"
                   name="department"

@@ -10,6 +10,7 @@ from modules.usuarios.domain.repository.usuario_repository import UsuarioReposit
 async def actualizar_usuario(
     repo: UsuarioRepository,
     correo: str,
+    nombre: str | None = None,
     rol: str | None = None,
     departamento: str | None = None,
 ) -> Usuario:
@@ -28,6 +29,6 @@ async def actualizar_usuario(
         Departamento(departamento) if departamento is not None else None
     )
 
-    usuario.actualizar(rol=rol_valido, departamento=departamento_valido)
+    usuario.actualizar(rol=rol_valido, departamento=departamento_valido, nombre=nombre)
     await repo.actualizar(usuario)
     return usuario

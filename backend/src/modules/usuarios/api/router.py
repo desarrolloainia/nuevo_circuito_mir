@@ -60,6 +60,7 @@ async def crear_usuario(
         try:
             usuario = await registrar_usuario(
                 repo=repo,
+                nombre=datos.nombre,
                 correo=datos.correo,
                 rol=datos.rol,
                 departamento=datos.departamento,
@@ -106,6 +107,7 @@ async def actualizar_usuario_existente(
             usuario = await actualizar_usuario(
                 repo=repo,
                 correo=correo,
+                nombre=datos.nombre,
                 rol=datos.rol,
                 departamento=datos.departamento,
             )

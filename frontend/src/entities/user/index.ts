@@ -1,3 +1,7 @@
+export { deactivateUser } from './api/deactivate-user'
 export { getUserByEmail } from './api/get-user-by-email'
+export { listActiveUsers } from './api/list-active-users'
 export { registerUser } from './api/register-user'
+export { updateUser } from './api/update-user'
 export { useCurrentUser, rememberUser, restoreUser, clearUser } from './model/user'
+export type { ActualizarUsuario, RegistrarUsuario, Rol, User } from './model/types'

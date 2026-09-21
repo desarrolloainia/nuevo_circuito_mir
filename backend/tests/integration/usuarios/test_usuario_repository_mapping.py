@@ -11,6 +11,7 @@ from modules.usuarios.Infrastructure.persistence.usuario_repository import (
 def test_to_orm_y_to_domain_son_inversas():
     usuario = Usuario(
         correo=Correo("tecnico@ainia.test"),
+        nombre="Ana Técnico",
         rol=Rol.TECNICO_CLD,
         departamento=Departamento("Calidad"),
     )
@@ -24,6 +25,7 @@ def test_to_orm_y_to_domain_son_inversas():
 def test_to_orm_serializa_rol_y_departamento_como_texto_plano():
     usuario = Usuario(
         correo=Correo("tecnico@ainia.test"),
+        nombre="Ana Técnico",
         rol=Rol.TECNICO_CLD,
         departamento=Departamento("Calidad"),
         activo=False,

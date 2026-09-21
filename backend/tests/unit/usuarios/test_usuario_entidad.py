@@ -36,6 +36,7 @@ def test_usuario_no_se_construye_sin_correo_valido():
     with pytest.raises(FormatoCorreoInvalidoError):
         Usuario(
             correo=Correo("correo-invalido"),
+            nombre="Ana Técnico",
             rol=Rol.TECNICO_CLD,
             departamento=Departamento("Calidad"),
         )
@@ -45,6 +46,7 @@ def test_usuario_no_se_construye_sin_departamento():
     with pytest.raises(DatoObligatorioFaltanteError):
         Usuario(
             correo=Correo("tecnico@ainia.test"),
+            nombre="Ana Técnico",
             rol=Rol.TECNICO_CLD,
             departamento=Departamento(""),
         )
@@ -53,6 +55,7 @@ def test_usuario_no_se_construye_sin_departamento():
 def test_dar_de_baja_fija_inactivo_y_fecha_de_baja():
     usuario = Usuario(
         correo=Correo("tecnico@ainia.test"),
+        nombre="Ana Técnico",
         rol=Rol.TECNICO_CLD,
         departamento=Departamento("Calidad"),
     )
@@ -67,6 +70,7 @@ def test_dar_de_baja_fija_inactivo_y_fecha_de_baja():
 def test_dar_de_baja_dos_veces_es_idempotente():
     usuario = Usuario(
         correo=Correo("tecnico@ainia.test"),
+        nombre="Ana Técnico",
         rol=Rol.TECNICO_CLD,
         departamento=Departamento("Calidad"),
     )

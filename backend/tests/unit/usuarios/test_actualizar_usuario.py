@@ -20,6 +20,7 @@ def test_actualizar_usuario_activo_cambia_rol_y_departamento():
         await repo.guardar(
             Usuario(
                 correo=Correo("tecnico@ainia.test"),
+                nombre="Ana Técnico",
                 rol=Rol.TECNICO_CLD,
                 departamento=Departamento("Calidad"),
             )
@@ -31,6 +32,27 @@ def test_actualizar_usuario_activo_cambia_rol_y_departamento():
 
         assert usuario.rol == Rol.EJECUTOR
         assert usuario.departamento.valor == "Producción"
+
+    asyncio.run(caso())
+
+
+def test_actualizar_usuario_activo_cambia_nombre():
+    async def caso() -> None:
+        repo = UsuarioRepositoryEnMemoria()
+        await repo.guardar(
+            Usuario(
+                correo=Correo("tecnico@ainia.test"),
+                nombre="Ana Técnico",
+                rol=Rol.TECNICO_CLD,
+                departamento=Departamento("Calidad"),
+            )
+        )
+
+        usuario = await actualizar_usuario(
+            repo, "tecnico@ainia.test", nombre="Ana Gómez"
+        )
+
+        assert usuario.nombre == "Ana Gómez"
 
     asyncio.run(caso())
 
@@ -52,6 +74,7 @@ def test_actualizar_usuario_inactivo_lanza_error():
         repo = UsuarioRepositoryEnMemoria()
         usuario = Usuario(
             correo=Correo("tecnico@ainia.test"),
+            nombre="Ana Técnico",
             rol=Rol.TECNICO_CLD,
             departamento=Departamento("Calidad"),
         )

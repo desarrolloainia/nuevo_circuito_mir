@@ -1,10 +1,10 @@
 import { apiPost } from '@/shared/api'
-import type { components } from '@/shared/schema'
+import type { RegistrarUsuario, User } from '../model/types'
 
-type Registration = Pick<components['schemas']['UsuarioRead'], 'correo' | 'departamento' | 'rol'>
+type Registration = Pick<RegistrarUsuario, 'correo' | 'nombre' | 'departamento' | 'rol'>
 
-export function registerUser(data: Registration): Promise<components['schemas']['UsuarioRead']> {
-  const body: components['schemas']['RegistrarUsuarioDTO'] = {
+export function registerUser(data: Registration): Promise<User> {
+  const body: RegistrarUsuario = {
     ...data,
     activo: true,
     creado_en: new Date().toISOString()

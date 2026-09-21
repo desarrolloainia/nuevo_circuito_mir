@@ -18,6 +18,7 @@ def test_dar_baja_desaparece_del_listado_pero_sigue_consultable():
         await repo.guardar(
             Usuario(
                 correo=Correo("tecnico@ainia.test"),
+                nombre="Ana Técnico",
                 rol=Rol.TECNICO_CLD,
                 departamento=Departamento("Calidad"),
             )
@@ -49,6 +50,7 @@ def test_dar_baja_es_idempotente():
         await repo.guardar(
             Usuario(
                 correo=Correo("tecnico@ainia.test"),
+                nombre="Ana Técnico",
                 rol=Rol.TECNICO_CLD,
                 departamento=Departamento("Calidad"),
             )

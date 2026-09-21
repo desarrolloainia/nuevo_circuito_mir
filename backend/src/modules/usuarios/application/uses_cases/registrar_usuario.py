@@ -8,7 +8,7 @@ from modules.usuarios.domain.repository.usuario_repository import UsuarioReposit
 
 
 async def registrar_usuario(
-    repo: UsuarioRepository, correo: str, rol: str, departamento: str
+    repo: UsuarioRepository, correo: str, rol: str, departamento: str, nombre: str
 ) -> Usuario:
     try:
         rol_valido = Rol(rol)
@@ -19,7 +19,10 @@ async def registrar_usuario(
         raise CorreoYaRegistradoError(correo)
 
     usuario = Usuario(
-        correo=Correo(correo), rol=rol_valido, departamento=Departamento(departamento)
+        correo=Correo(correo),
+        rol=rol_valido,
+        departamento=Departamento(departamento),
+        nombre=nombre,
     )
     await repo.guardar(usuario)
     return usuario

@@ -11,14 +11,10 @@
             "id": "8c9b2f5ea2164d77",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "002-modulo-usuarios/tasks.md",
-                "mode": "preview",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "tasks"
+              "title": "Nueva pestaña"
             }
           }
         ]
@@ -188,7 +184,7 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "8c9b2f5ea2164d77",
+  "active": "eff6c66f3823c1f4",
   "lastOpenFiles": [
     "002-modulo-usuarios/plan.md",
     "002-modulo-usuarios/tasks.md",

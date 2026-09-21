@@ -12,6 +12,7 @@ def to_domain(usuario_orm: UsuarioORM) -> Usuario:
     dominio a SQLAlchemy."""
     return Usuario(
         id=usuario_orm.id,
+        nombre=usuario_orm.nombre,
         correo=Correo(usuario_orm.correo),
         rol=Rol(usuario_orm.rol),
         departamento=Departamento(usuario_orm.departamento),
@@ -24,6 +25,7 @@ def to_domain(usuario_orm: UsuarioORM) -> Usuario:
 def to_orm(usuario: Usuario) -> UsuarioORM:
     return UsuarioORM(
         id=usuario.id,
+        nombre=usuario.nombre,
         correo=usuario.correo.valor,
         rol=usuario.rol.value,
         departamento=usuario.departamento.valor,
@@ -64,6 +66,7 @@ class UsuarioRepositorySqlAlchemy:
         if usuario_orm is None:
             raise UsuarioNoEncontradoError(usuario.correo.valor)
 
+        usuario_orm.nombre = usuario.nombre
         usuario_orm.rol = usuario.rol.value
         usuario_orm.departamento = usuario.departamento.valor
         usuario_orm.activo = usuario.activo

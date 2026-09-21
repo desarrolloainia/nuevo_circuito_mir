@@ -11,11 +11,13 @@ def test_listar_usuarios_devuelve_solo_los_activos():
         repo = UsuarioRepositoryEnMemoria()
         activo = Usuario(
             correo=Correo("activo@ainia.test"),
+            nombre="Ana Técnico",
             rol=Rol.TECNICO_CLD,
             departamento=Departamento("Calidad"),
         )
         inactivo = Usuario(
             correo=Correo("inactivo@ainia.test"),
+            nombre="Ana Técnico",
             rol=Rol.EJECUTOR,
             departamento=Departamento("Producción"),
         )

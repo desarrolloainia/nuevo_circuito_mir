@@ -1,0 +1,13 @@
+
+
+from modules.mir.domain.entities.mir import MIR
+
+
+class MirRepository:
+    def get_mir_all(self) -> list[MIR]: ...
+    
+    def create_mir(self, mir: MIR) -> MIR: ...
+    
+    def update_mir(self, mir: MIR) -> MIR: ...
+    
+    def delete_mir(self, mir_id: str) -> None: ...

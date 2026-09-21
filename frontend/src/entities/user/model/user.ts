@@ -1,8 +1,6 @@
 import { useState } from '#imports'
 import { getUserByEmail } from '../api/get-user-by-email'
-import type { components } from '@/shared/schema'
-
-type User = components['schemas']['UsuarioRead']
+import type { User } from './types'
 
 export const useCurrentUser = () => useState<User | null>('mir-user', () => null)
 
