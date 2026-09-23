@@ -10,7 +10,9 @@ class UnitOfWork:
     """Delimita una transacción: hace falta llamar a commit() explícitamente,
     cualquier salida sin commit (excepción o no) revierte los cambios."""
 
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession] = AsyncSessionLocal) -> None:
+    def __init__(
+        self, session_factory: async_sessionmaker[AsyncSession] = AsyncSessionLocal
+    ) -> None:
         self._session_factory = session_factory
         self.session: AsyncSession
 

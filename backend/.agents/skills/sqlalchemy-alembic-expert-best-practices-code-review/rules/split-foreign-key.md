@@ -15,13 +15,7 @@ Bad:
 ```python
 def upgrade():
     # Directly creating a foreign key constraint can block writes on both tables
-    op.create_foreign_key(
-        'fk_users_orders',
-        'users',
-        'orders',
-        ['order_id'],
-        ['id']
-    )
+    op.create_foreign_key("fk_users_orders", "users", "orders", ["order_id"], ["id"])
 ```
 
 Good:
@@ -29,21 +23,23 @@ Good:
 ```python
 # Migration 1: Add foreign key without validation
 
+
 def upgrade():
     # Create the foreign key constraint without validating existing data
     op.create_foreign_key(
-        'fk_users_orders',
-        'users',
-        'orders',
-        ['order_id'],
-        ['id'],
-        postgresql_not_valid=True
+        "fk_users_orders",
+        "users",
+        "orders",
+        ["order_id"],
+        ["id"],
+        postgresql_not_valid=True,
     )
 ```
 
 ```python
 # Migration 2: Validate existing data
 
+
 def upgrade():
-    op.execute('ALTER TABLE users VALIDATE CONSTRAINT fk_users_orders')
+    op.execute("ALTER TABLE users VALIDATE CONSTRAINT fk_users_orders")
 ```

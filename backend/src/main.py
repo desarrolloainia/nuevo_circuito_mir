@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from modules.mir.api.router import router as mir_router
 from modules.usuarios.api.router import router as usuarios_router
 
 app = FastAPI()
@@ -15,3 +16,4 @@ app.add_middleware(
 
 
 app.include_router(usuarios_router)
+app.include_router(mir_router)

@@ -13,10 +13,10 @@ Bad:
 def upgrade():
     with op.get_context().autocommit_block():
         op.create_index(
-            'index_users_on_multiple_columns',
-            'users',
-            ['column_a', 'column_b', 'column_c', 'column_d'],
-            postgresql_concurrently=True
+            "index_users_on_multiple_columns",
+            "users",
+            ["column_a", "column_b", "column_c", "column_d"],
+            postgresql_concurrently=True,
         )
 ```
 
@@ -27,9 +27,9 @@ def upgrade():
     # Limit to most selective columns for better performance
     with op.get_context().autocommit_block():
         op.create_index(
-            'index_users_on_selective_columns',
-            'users',
-            ['column_d', 'column_b'],
-            postgresql_concurrently=True
+            "index_users_on_selective_columns",
+            "users",
+            ["column_d", "column_b"],
+            postgresql_concurrently=True,
         )
 ```

@@ -13,7 +13,7 @@ Bad:
 
 ```python
 def upgrade():
-    op.create_index('idx_users_email', 'users', ['email'])
+    op.create_index("idx_users_email", "users", ["email"])
 ```
 
 Good:
@@ -21,7 +21,9 @@ Good:
 ```python
 def upgrade():
     with op.get_context().autocommit_block():
-        op.create_index('idx_users_email', 'users', ['email'], postgresql_concurrently=True)
+        op.create_index(
+            "idx_users_email", "users", ["email"], postgresql_concurrently=True
+        )
 ```
 
 For `downgrade()`:
@@ -30,7 +32,7 @@ Bad:
 
 ```python
 def downgrade():
-    op.drop_index('idx_users_email', 'users')
+    op.drop_index("idx_users_email", "users")
 ```
 
 Good:
@@ -38,5 +40,5 @@ Good:
 ```python
 def downgrade():
     with op.get_context().autocommit_block():
-        op.drop_index('idx_users_email', 'users', postgresql_concurrently=True)
+        op.drop_index("idx_users_email", "users", postgresql_concurrently=True)
 ```

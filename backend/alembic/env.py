@@ -16,7 +16,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 
-from modules.usuarios.Infrastructure.entities.usuario import UsuarioORM  #noqa: F401
+from modules.usuarios.Infrastructure.entities.usuario import UsuarioORM  # noqa: F401
 from shared.database import Base
 
 target_metadata = Base.metadata

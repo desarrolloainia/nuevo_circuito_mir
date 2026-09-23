@@ -15,9 +15,10 @@ def get_user_by_email(session: Session, email: str):
     # Will perform full table scan - no index on email
     return session.scalar(select(User).where(User.email == email))
 
+
 # models.py
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255))  # No index
@@ -33,9 +34,10 @@ def get_user_by_email(session: Session, email: str):
     # Is covered by an index
     return session.scalar(select(User).where(User.email == email))
 
+
 # models.py
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), index=True)

@@ -66,9 +66,11 @@ from typing import Optional
 from sqlalchemy import String, DateTime, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+
 # Base class for all models
 class Base(DeclarativeBase):
     pass
+
 
 # User model with type hints
 class User(Base):
@@ -88,13 +90,10 @@ class User(Base):
 
     # Timestamps with server defaults
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
+        DateTime(timezone=True), server_default=func.now()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     # Relationships
@@ -119,8 +118,7 @@ class Post(Base):
     # Relationship with back_populates
     author: Mapped["User"] = relationship(back_populates="posts")
     tags: Mapped[list["Tag"]] = relationship(
-        secondary="post_tags",
-        back_populates="posts"
+        secondary="post_tags", back_populates="posts"
     )
 ```
 
@@ -133,8 +131,9 @@ post_tags = Table(
     "post_tags",
     Base.metadata,
     Column("post_id", Integer, ForeignKey("posts.id"), primary_key=True),
-    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True)
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
 )
+
 
 class Tag(Base):
     __tablename__ = "tags"
@@ -143,8 +142,7 @@ class Tag(Base):
     name: Mapped[str] = mapped_column(String(50), unique=True)
 
     posts: Mapped[list["Post"]] = relationship(
-        secondary=post_tags,
-        back_populates="tags"
+        secondary=post_tags, back_populates="tags"
     )
 ```
 
@@ -170,15 +168,12 @@ engine = create_engine(
     pool_size=5,
     max_overflow=10,
     pool_pre_ping=True,  # Check connection before using
-    echo=False  # Set True for SQL logging
+    echo=False,  # Set True for SQL logging
 )
 
 # Session factory
 SessionLocal = sessionmaker(
-    bind=engine,
-    autocommit=False,
-    autoflush=False,
-    expire_on_commit=False
+    bind=engine, autocommit=False, autoflush=False, expire_on_commit=False
 )
 
 # Create tables
@@ -189,6 +184,7 @@ Base.metadata.create_all(bind=engine)
 ```python
 from typing import Generator
 
+
 def get_db() -> Generator[Session, None, None]:
     """Database session dependency for FastAPI."""
     db = SessionLocal()
@@ -197,14 +193,14 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
+
 # Usage in FastAPI
 from fastapi import Depends
 
+
 @app.get("/users/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db)):
-    return db.execute(
-        select(User).where(User.id == user_id)
-    ).scalar_one_or_none()
+    return db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
 ```
 
 ## Query Patterns (SQLAlchemy 2.0)
@@ -219,19 +215,13 @@ user = session.execute(stmt).scalar_one_or_none()
 
 # Multiple conditions
 stmt = select(User).where(
-    and_(
-        User.is_active == True,
-        User.created_at > datetime(2024, 1, 1)
-    )
+    and_(User.is_active == True, User.created_at > datetime(2024, 1, 1))
 )
 users = session.execute(stmt).scalars().all()
 
 # OR conditions
 stmt = select(User).where(
-    or_(
-        User.email.like("%@gmail.com"),
-        User.email.like("%@yahoo.com")
-    )
+    or_(User.email.like("%@gmail.com"), User.email.like("%@yahoo.com"))
 )
 
 # Ordering and limiting
@@ -252,9 +242,7 @@ count = session.execute(stmt).scalar()
 ```python
 # Inner join
 stmt = (
-    select(Post, User)
-    .join(User, Post.user_id == User.id)
-    .where(User.is_active == True)
+    select(Post, User).join(User, Post.user_id == User.id).where(User.is_active == True)
 )
 results = session.execute(stmt).all()
 
@@ -266,12 +254,7 @@ stmt = (
 )
 
 # Multiple joins
-stmt = (
-    select(Post)
-    .join(Post.author)
-    .join(Post.tags)
-    .where(Tag.name == "python")
-)
+stmt = select(Post).join(Post.author).join(Post.tags).where(Tag.name == "python")
 ```
 
 ### Eager Loading (Solve N+1 Problem)
@@ -288,12 +271,11 @@ stmt = select(Post).options(joinedload(Post.author))
 posts = session.execute(stmt).unique().scalars().all()
 
 # Nested eager loading
-stmt = select(User).options(
-    selectinload(User.posts).selectinload(Post.tags)
-)
+stmt = select(User).options(selectinload(User.posts).selectinload(Post.tags))
 
 # Load only specific columns
 from sqlalchemy.orm import load_only
+
 stmt = select(User).options(load_only(User.id, User.email))
 ```
 
@@ -303,21 +285,15 @@ stmt = select(User).options(load_only(User.id, User.email))
 ```python
 def create_user(db: Session, email: str, username: str, password: str):
     """Create new user."""
-    user = User(
-        email=email,
-        username=username,
-        hashed_password=hash_password(password)
-    )
+    user = User(email=email, username=username, hashed_password=hash_password(password))
     db.add(user)
     db.commit()
     db.refresh(user)  # Get updated fields (id, timestamps)
     return user
 
+
 # Bulk insert
-users = [
-    User(email=f"user{i}@example.com", username=f"user{i}")
-    for i in range(100)
-]
+users = [User(email=f"user{i}@example.com", username=f"user{i}") for i in range(100)]
 db.add_all(users)
 db.commit()
 ```
@@ -329,11 +305,8 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
     stmt = select(User).where(User.email == email)
     return db.execute(stmt).scalar_one_or_none()
 
-def get_users(
-    db: Session,
-    skip: int = 0,
-    limit: int = 100
-) -> list[User]:
+
+def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
     """Get paginated users."""
     stmt = (
         select(User)
@@ -362,14 +335,11 @@ def update_user(db: Session, user_id: int, **kwargs):
     db.refresh(user)
     return user
 
+
 # Bulk update
 from sqlalchemy import update
 
-stmt = (
-    update(User)
-    .where(User.is_active == False)
-    .values(deleted_at=datetime.utcnow())
-)
+stmt = update(User).where(User.is_active == False).values(deleted_at=datetime.utcnow())
 db.execute(stmt)
 db.commit()
 ```
@@ -388,6 +358,7 @@ def delete_user(db: Session, user_id: int) -> bool:
     db.commit()
     return True
 
+
 # Bulk delete
 from sqlalchemy import delete
 
@@ -402,6 +373,7 @@ db.commit()
 ```python
 from contextlib import contextmanager
 
+
 @contextmanager
 def get_db_session():
     """Session context manager."""
@@ -414,6 +386,7 @@ def get_db_session():
         raise
     finally:
         session.close()
+
 
 # Usage
 with get_db_session() as db:
@@ -448,28 +421,20 @@ def transfer_money(db: Session, from_user_id: int, to_user_id: int, amount: floa
 
 ### Async Setup
 ```python
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    AsyncSession,
-    async_sessionmaker
-)
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 # Async engine (note: asyncpg for PostgreSQL, aiosqlite for SQLite)
 DATABASE_URL = "postgresql+asyncpg://user:pass@localhost/mydb"
 
 async_engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    pool_size=5,
-    max_overflow=10
+    DATABASE_URL, echo=False, pool_size=5, max_overflow=10
 )
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(
-    async_engine,
-    class_=AsyncSession,
-    expire_on_commit=False
+    async_engine, class_=AsyncSession, expire_on_commit=False
 )
+
 
 # Create tables
 async def init_db():
@@ -486,6 +451,7 @@ async def get_user_async(user_id: int) -> Optional[User]:
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
+
 async def create_user_async(email: str, username: str) -> User:
     """Create user asynchronously."""
     async with AsyncSessionLocal() as session:
@@ -495,16 +461,15 @@ async def create_user_async(email: str, username: str) -> User:
         await session.refresh(user)
         return user
 
+
 # FastAPI async dependency
 async def get_async_db():
     async with AsyncSessionLocal() as session:
         yield session
 
+
 @app.get("/users/{user_id}")
-async def get_user_endpoint(
-    user_id: int,
-    db: AsyncSession = Depends(get_async_db)
-):
+async def get_user_endpoint(user_id: int, db: AsyncSession = Depends(get_async_db)):
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -533,6 +498,7 @@ from myapp.models import Base  # Import your Base
 # Add your model's MetaData
 target_metadata = Base.metadata
 
+
 def run_migrations_online():
     """Run migrations in 'online' mode."""
     configuration = config.get_section(config.config_ini_section)
@@ -545,10 +511,7 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
@@ -580,19 +543,21 @@ alembic history
 from alembic import op
 import sqlalchemy as sa
 
+
 def upgrade():
     op.create_table(
-        'users',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('email', sa.String(255), nullable=False),
-        sa.Column('username', sa.String(50), nullable=False),
-        sa.PrimaryKeyConstraint('id')
+        "users",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("email", sa.String(255), nullable=False),
+        sa.Column("username", sa.String(50), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index('ix_users_email', 'users', ['email'], unique=True)
+    op.create_index("ix_users_email", "users", ["email"], unique=True)
+
 
 def downgrade():
-    op.drop_index('ix_users_email', table_name='users')
-    op.drop_table('users')
+    op.drop_index("ix_users_email", table_name="users")
+    op.drop_table("users")
 ```
 
 ## FastAPI Integration
@@ -606,13 +571,16 @@ from typing import List
 
 app = FastAPI()
 
+
 # Pydantic schemas
 class UserBase(BaseModel):
     email: EmailStr
     username: str
 
+
 class UserCreate(UserBase):
     password: str
+
 
 class UserResponse(UserBase):
     id: int
@@ -622,6 +590,7 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True  # SQLAlchemy 2.0 (was orm_mode)
 
+
 # CRUD operations
 @app.post("/users/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
@@ -629,20 +598,20 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
     stmt = select(User).where(User.email == user.email)
     if db.execute(stmt).scalar_one_or_none():
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
     # Create user
     db_user = User(
         email=user.email,
         username=user.username,
-        hashed_password=hash_password(user.password)
+        hashed_password=hash_password(user.password),
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 @app.get("/users/{user_id}", response_model=UserResponse)
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -651,38 +620,25 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
     return user
 
+
 @app.get("/users/", response_model=List[UserResponse])
-def list_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
-    stmt = (
-        select(User)
-        .where(User.is_active == True)
-        .offset(skip)
-        .limit(limit)
-    )
+def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    stmt = select(User).where(User.is_active == True).offset(skip).limit(limit)
     return db.execute(stmt).scalars().all()
 
+
 @app.put("/users/{user_id}", response_model=UserResponse)
-def update_user(
-    user_id: int,
-    user_update: UserBase,
-    db: Session = Depends(get_db)
-):
+def update_user(user_id: int, user_update: UserBase, db: Session = Depends(get_db)):
     stmt = select(User).where(User.id == user_id)
     db_user = db.execute(stmt).scalar_one_or_none()
 
     if not db_user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     db_user.email = user_update.email
@@ -691,6 +647,7 @@ def update_user(
     db.refresh(db_user)
     return db_user
 
+
 @app.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     stmt = select(User).where(User.id == user_id)
@@ -698,8 +655,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
     if not db_user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
     db.delete(db_user)
@@ -717,6 +673,7 @@ from sqlalchemy.orm import sessionmaker
 # In-memory SQLite for testing
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
 
+
 @pytest.fixture(scope="function")
 def db_session():
     """Create test database session."""
@@ -729,11 +686,7 @@ def db_session():
     # Create tables
     Base.metadata.create_all(bind=engine)
 
-    TestingSessionLocal = sessionmaker(
-        autocommit=False,
-        autoflush=False,
-        bind=engine
-    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     session = TestingSessionLocal()
     try:
@@ -742,14 +695,11 @@ def db_session():
         session.close()
         Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture(scope="function")
 def test_user(db_session):
     """Create test user."""
-    user = User(
-        email="test@example.com",
-        username="testuser",
-        hashed_password="hashed"
-    )
+    user = User(email="test@example.com", username="testuser", hashed_password="hashed")
     db_session.add(user)
     db_session.commit()
     db_session.refresh(user)
@@ -768,6 +718,7 @@ def test_create_user(db_session):
     assert user.email == "new@example.com"
     assert user.created_at is not None
 
+
 def test_query_user(db_session, test_user):
     """Test user query."""
     stmt = select(User).where(User.email == "test@example.com")
@@ -775,6 +726,7 @@ def test_query_user(db_session, test_user):
 
     assert found_user.id == test_user.id
     assert found_user.username == test_user.username
+
 
 def test_update_user(db_session, test_user):
     """Test user update."""
@@ -784,6 +736,7 @@ def test_update_user(db_session, test_user):
     stmt = select(User).where(User.id == test_user.id)
     updated_user = db_session.execute(stmt).scalar_one()
     assert updated_user.username == "updated"
+
 
 def test_delete_user(db_session, test_user):
     """Test user deletion."""
@@ -807,9 +760,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(index=True)
 
     # Composite index
-    __table_args__ = (
-        Index('ix_user_email_active', 'email', 'is_active'),
-    )
+    __table_args__ = (Index("ix_user_email_active", "email", "is_active"),)
+
 
 # Use select_from for complex queries
 stmt = (
@@ -835,19 +787,21 @@ stmt = (
 # Configure pool
 engine = create_engine(
     DATABASE_URL,
-    pool_size=20,           # Number of connections to keep
-    max_overflow=10,        # Additional connections when pool full
-    pool_timeout=30,        # Seconds to wait for connection
-    pool_recycle=3600,      # Recycle connections after 1 hour
-    pool_pre_ping=True      # Verify connections before use
+    pool_size=20,  # Number of connections to keep
+    max_overflow=10,  # Additional connections when pool full
+    pool_timeout=30,  # Seconds to wait for connection
+    pool_recycle=3600,  # Recycle connections after 1 hour
+    pool_pre_ping=True,  # Verify connections before use
 )
 
 # Monitor pool
 from sqlalchemy import event
 
+
 @event.listens_for(engine, "connect")
 def receive_connect(dbapi_conn, connection_record):
     print("New connection established")
+
 
 @event.listens_for(engine, "checkout")
 def receive_checkout(dbapi_conn, connection_record, connection_proxy):
@@ -859,10 +813,7 @@ def receive_checkout(dbapi_conn, connection_record, connection_proxy):
 # Bulk insert with executemany
 from sqlalchemy import insert
 
-data = [
-    {"email": f"user{i}@example.com", "username": f"user{i}"}
-    for i in range(1000)
-]
+data = [{"email": f"user{i}@example.com", "username": f"user{i}"} for i in range(1000)]
 
 stmt = insert(User)
 db.execute(stmt, data)
@@ -871,11 +822,7 @@ db.commit()
 # Bulk update
 from sqlalchemy import update
 
-stmt = (
-    update(User)
-    .where(User.is_active == False)
-    .values(deleted_at=func.now())
-)
+stmt = update(User).where(User.is_active == False).values(deleted_at=func.now())
 db.execute(stmt)
 ```
 
@@ -899,7 +846,8 @@ db.execute(stmt)
 from typing import Generic, TypeVar, Type
 from sqlalchemy.orm import Session
 
-T = TypeVar('T', bound=Base)
+T = TypeVar("T", bound=Base)
+
 
 class BaseRepository(Generic[T]):
     def __init__(self, model: Type[T], db: Session):
@@ -928,6 +876,7 @@ class BaseRepository(Generic[T]):
             return True
         return False
 
+
 # Usage
 user_repo = BaseRepository(User, db)
 user = user_repo.get(1)
@@ -942,9 +891,11 @@ class SoftDeleteMixin:
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
 
+
 class User(Base, SoftDeleteMixin):
     __tablename__ = "users"
     # ... fields
+
 
 # Query only active records
 stmt = select(User).where(User.deleted_at.is_(None))
@@ -958,16 +909,14 @@ db.commit()
 ```python
 class AuditMixin:
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
+        DateTime(timezone=True), server_default=func.now()
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
     created_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
     updated_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+
 
 class Post(Base, AuditMixin):
     __tablename__ = "posts"

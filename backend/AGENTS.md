@@ -32,7 +32,7 @@ dominio: ante cualquier duda de comportamiento, manda el PG09, no la intuición.
 > CLD es el departamento de Calidad. Mantén la sigla tal cual en el código: es
 > la que usan los usuarios.
 
-### 1.2 Etapas del flujo (PG09 §5)
+### 1.2 Etapas del flujo
 
 1. **Detección** — cualquier persona detecta la MIR.
 2. **Registro** — alta en el aplicativo, preferiblemente en **1 día hábil**. La
@@ -68,7 +68,7 @@ Bucles del flujograma (Anexo 1) que hay que respetar:
 
 ### 1.3 Clasificación
 
-Se clasifica por **origen** y por **tipología**. Tipos y subtipos del PG09 §4:
+Se clasifica por **origen** y por **tipología**. Tipos y subtipos de la MIR:
 
 - **Auditoría interna** → subcategorías: Análisis, Formación, Proyecto, Proceso.
 - **Auditoría externa** → subtipos: Acreditadora/Certificadora, Empresa.
@@ -97,7 +97,7 @@ Se clasifica por **origen** y por **tipología**. Tipos y subtipos del PG09 §4:
   obligatorios en el dominio, no solo en el formulario.
 - **Producto no conforme**: se etiqueta con el registro RVG03.
 
-### 1.5 Avisos automáticos (PG09 §6)
+### 1.5 Avisos automáticos
 
 | Disparador | Cuándo | A quién | Repetición | Destinatarios de la repetición |
 | --- | --- | --- | --- | --- |
@@ -106,10 +106,7 @@ Se clasifica por **origen** y por **tipología**. Tipos y subtipos del PG09 §4:
 | Fin del plazo previsto de ejecución | 15 días **antes** de la fecha prevista | Ejecutor | El día de la fecha prevista, luego cada 7 días | Ejecutor, JD, CLD |
 | Comprobación de Eficacia | 15 días **antes** de la fecha prevista de CE | CLD | El día de la fecha prevista, luego cada 7 días | CLD |
 
-> El PG09 menciona "10 tipos/momentos de aviso" pero la tabla solo detalla estos
-> cuatro. Ver §11 (dudas abiertas).
-
-### 1.6 Informes (PG09 §8)
+### 1.6 Informes
 
 Consultas por departamento, tipo y motivo: MIR abiertas/cerradas, tiempo de
 resolución, tipo de MIR por departamento y estado actual.
@@ -207,7 +204,7 @@ infrastructure → domain (implementa sus interfaces)
 
 ### 4.4 Dónde vive la máquina de estados
 
-Las transiciones entre etapas del PG09 (§1.2) son **reglas de dominio**, no de
+Las transiciones entre etapas de las MIR son **reglas de dominio**, no de
 presentación. Viven en `mir/domain`. Un caso de uso invoca la transición; la
 entidad decide si es legal. Ningún router debe decidir si una MIR puede pasar de
 una etapa a otra.
@@ -276,30 +273,10 @@ tests/
 > Decidir cuál y añadirla siguiendo la regla del §8.
 
 ---
-
-## 7. Flujo spec-driven
-
-1. Leer `docs/constitution.md`.
-2. Leer el **PG09** (`docs/PG09_Gestión_de_MIR_rev14.pdf`) cuando la tarea toque
-   reglas de negocio.
-3. Leer la spec activa en `specs/`.
-
-   > **TODO:** definir cómo se identifica la spec activa (convención de nombre,
-   > `status:` en front-matter, carpeta `specs/active/`…). Mientras no esté
-   > definido, el agente pregunta.
-
-4. Implementar solo lo que la spec describe. Si la spec no cubre algo que
-   necesitas, **para y pregunta**; no lo resuelvas por tu cuenta.
-5. No modificar archivos de `specs/` salvo petición explícita.
-
-**Si el código y el PG09 se contradicen, no elijas por tu cuenta: repórtalo.**
-
----
-
 ## 8. Cambios que requieren aprobación previa
 
 Antes de hacer cualquiera de estas cosas, **detente y pregunta**. Solo tras
-aprobación se implementa, y en el mismo cambio se actualiza la spec.
+aprobación se implementa.
 
 - Añadir, eliminar o subir de versión mayor una dependencia.
 - Cambios de arquitectura: nuevos módulos, nuevas capas, movimiento de
@@ -316,7 +293,6 @@ aprobación se implementa, y en el mismo cambio se actualiza la spec.
 
 ## 9. No tocar
 
-- `specs/` (salvo petición explícita) y `docs/PG09*`.
 - Migraciones de Alembic ya aplicadas. Si el esquema cambia, migración nueva.
 - `.env` y cualquier archivo con credenciales. Las credenciales de Azure y
   SharePoint se leen vía `pydantic-settings`; nunca hardcodeadas ni en logs.
