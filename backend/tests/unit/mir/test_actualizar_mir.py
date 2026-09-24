@@ -37,8 +37,22 @@ class MirRepositorioEnMemoria:
         del mir_id, actor_id
         raise NotImplementedError
 
-    async def get_mir_all(self) -> list[MIR]:
+    async def get_mir_all(self, detectada_por_id: UUID | None = None) -> list[MIR]:
+        del detectada_por_id
         raise NotImplementedError
+
+    async def reservar_numero(self, anio: int) -> int:
+        del anio
+        raise NotImplementedError
+
+    async def filtrar_estado(self, estado: Estado) -> list[MIR]:
+        return [mir for mir in self.mirs.values() if mir.estado == estado]
+
+    async def editar_estado(self, mir_id: UUID, estado: Estado) -> MIR:
+        mir = self.mirs[mir_id]
+        mir.estado = estado
+        self.actualizadas.append(mir)
+        return mir
 
     async def get_by_codigo_mir(self, codigo_mir: str) -> MIR | None:
         del codigo_mir

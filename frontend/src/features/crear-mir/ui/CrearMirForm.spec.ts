@@ -41,6 +41,8 @@ it('renderiza los campos principales y precarga el nombre del usuario logueado, 
   const nombreInput = form.get('input[name="nombre"]')
   expect((nombreInput.element as HTMLInputElement).value).toBe('Ana Auditora')
   expect(nombreInput.attributes('disabled')).toBeDefined()
+  expect((form.get('input[name="detectadoPorId"]').element as HTMLInputElement).value).toBe('ana@mir.es')
+  expect(listActiveUsers).not.toHaveBeenCalled()
   form.unmount()
 })
 
@@ -64,7 +66,7 @@ async function fillValidForm(form: Awaited<ReturnType<typeof mountForm>>): Promi
 }
 
 it('envía el formulario válido y emite created al resolver', async () => {
-  createMir.mockResolvedValue({ tipo: 'Incidencia' })
+  createMir.mockResolvedValue({ codigo_mir: '26001' })
   const form = await mountForm()
   await flushPromises()
 
@@ -83,6 +85,49 @@ it('envía el formulario válido y emite created al resolver', async () => {
     detectadoPorId: 'u-1'
   }))
   await vi.waitFor(() => expect(form.emitted('created')).toBeTruthy())
+  expect(form.emitted('created')![0]).toEqual([{ codigo_mir: '26001' }])
+  form.unmount()
+})
+
+it('al marcar solucionada exige los datos de resolución antes de enviar', async () => {
+  createMir.mockResolvedValue({ codigo_mir: '26002' })
+  const form = await mountForm()
+  await flushPromises()
+  await fillValidForm(form)
+  await form.get('[role="switch"]').trigger('click')
+  expect(form.text()).toContain('Solución adoptada')
+  await form.get('form').trigger('submit')
+  await vi.waitFor(() => expect(form.text()).toContain('Indica la solución adoptada'))
+  expect(createMir).not.toHaveBeenCalled()
+
+  await form.get('textarea[name="solucionAdoptada"]').setValue('Reparación')
+  await form.get('textarea[name="analisisCausas"]').setValue('Desgaste')
+  await form.get('textarea[name="algoMasQueHacer"]').setValue('Revisar las demás líneas')
+  await form.get('form').trigger('submit')
+  await vi.waitFor(() => expect(createMir).toHaveBeenCalledWith(expect.objectContaining({ solucionada: true, solucionAdoptada: 'Reparación' })))
+  form.unmount()
+})
+
+it('si falla el alta informa del error y conserva el formulario', async () => {
+  createMir.mockRejectedValue(new Error('Error del servidor'))
+  const form = await mountForm()
+  await flushPromises()
+  await fillValidForm(form)
+  await form.get('form').trigger('submit')
+  await vi.waitFor(() => expect(form.get('[role="alert"]').text()).toContain('No pudimos guardar'))
+  expect(form.emitted('created')).toBeUndefined()
+  expect((form.get('textarea').element as HTMLTextAreaElement).value).toBe('Fuga detectada en línea 3.')
+  form.unmount()
+})
+
+it('sitúa el error 422 del servidor en el campo correspondiente', async () => {
+  createMir.mockRejectedValue({ statusCode: 422, data: { detail: [{ loc: ['body', 'datos', 'correo_electronico'], msg: 'Invalid email', type: 'value_error' }] } })
+  const form = await mountForm()
+  await flushPromises()
+  await fillValidForm(form)
+  await form.get('form').trigger('submit')
+  await vi.waitFor(() => expect(form.text()).toContain('El correo electrónico no es válido'))
+  expect(form.emitted('created')).toBeUndefined()
   form.unmount()
 })
 

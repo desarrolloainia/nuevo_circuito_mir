@@ -1,9 +1,12 @@
+from uuid import UUID
+
 from modules.mir.domain.entities.mir import MIR
 from modules.mir.domain.repository.mir_repository import MirRepository
 
 
 async def list_all_mir(
     mir_repositorio: MirRepository,
+    detectada_por_id: UUID | None = None,
 ) -> list[MIR]:
     """Obtiene todos los MIRs.
 
@@ -13,4 +16,4 @@ async def list_all_mir(
     Returns:
         list[MIR]: Lista de todos los MIRs.
     """
-    return await mir_repositorio.get_mir_all()
+    return await mir_repositorio.get_mir_all(detectada_por_id)

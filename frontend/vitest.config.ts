@@ -9,6 +9,7 @@ export default defineVitestConfig({
   },
   test: {
     environment: 'nuxt',
+    maxWorkers: 2,
     include: ['src/**/*.{test,spec}.ts']
   }
 })

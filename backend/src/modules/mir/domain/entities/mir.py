@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from uuid import UUID
 
 from modules.archivos.domain.entities.documento import Documento
@@ -7,9 +7,11 @@ from modules.mir.domain.Enum.estado import Estado
 from modules.mir.domain.Enum.prioridad import Prioridad
 from modules.mir.domain.Enum.tipo import TipoMir
 from modules.mir.domain.exceptions.exceptions import (
+    ActorNoAutorizadoError,
     DatoObligatorioFaltanteError,
     EstadoInvalidoError,
 )
+from modules.usuarios.domain.Enum.rol import Rol
 
 
 @dataclass
@@ -44,6 +46,14 @@ class MIR:
 
     documentos: list[Documento] = field(default_factory=list)
 
+    fecha_deteccion: date | None = None
+    empresa_nombre: str | None = None
+    persona_contacto: str | None = None
+    telefono: str | None = None
+    correo_electronico: str | None = None
+    nombre_comercial: str | None = None
+    codigo_cliente: str | None = None
+
     creado_en: datetime = field(default_factory=datetime.now)
     modificado_en: datetime = field(default_factory=datetime.now)
     borrado: bool = False
@@ -70,6 +80,22 @@ class MIR:
         self.borrado_por_id = actor_id
         self.borrado_en = ahora
         self.modificado_en = ahora
+
+    def asignar_tecnico_cld(self, tecnico_cld_id: UUID) -> None:
+        if self.borrado or self.estado != Estado.EN_REVISION:
+            raise EstadoInvalidoError("Solo se asigna un tecnico a una MIR en revision")
+        self.tecnico_cld_id = tecnico_cld_id
+        self.estado = Estado.EN_PROGRESO
+        self.modificado_en = datetime.now(UTC)
+
+    def comprobar_denegable(self, rol: Rol) -> None:
+        """La MIR no procede (PG09, etapa 3)."""
+
+        if self.borrado or self.estado != Estado.EN_REVISION:
+            raise EstadoInvalidoError("Solo se deniega una MIR en revisión")
+
+        if rol != Rol.JEFE_CLD:
+            raise ActorNoAutorizadoError("Solo puede denegar la MIR el jefe de CLD")
 
     def actualizar(
         self,

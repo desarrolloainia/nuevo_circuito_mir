@@ -1,3 +1,5 @@
+import type { components } from '@/shared/schema'
+
 export type TipoMir = 'Mejora' | 'Incidencia' | 'Reclamación'
 
 export type EstadoMir = 'EN_REVISION' | 'EN_PROGRESO' | 'COMPLETADA' | 'RECHAZADA' | 'TERMINADA'
@@ -26,3 +28,4 @@ export const ESTADO_MIR_COLOR: Record<EstadoMir, 'warning' | 'success' | 'error'
   RECHAZADA: 'error',
   TERMINADA: 'success'
 }
+export type MirRecord = components['schemas']['MirDTO']

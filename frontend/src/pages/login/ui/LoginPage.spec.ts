@@ -5,7 +5,7 @@ import LoginPage from './LoginPage.vue'
 
 const { lookup, register, navigate } = vi.hoisted(() => ({ lookup: vi.fn(), register: vi.fn(), navigate: vi.fn() }))
 const mountPage = () => mountSuspended(LoginPage)
-vi.mock('@/entities/user', () => ({ getUserByEmail: lookup, registerUser: register, rememberUser: (user: { correo: string }) => sessionStorage.setItem('mir-email', user.correo) }))
+vi.mock('@/entities/user', async importOriginal => ({ ...await importOriginal(), getUserByEmail: lookup, registerUser: register, rememberUser: (user: { correo: string }) => sessionStorage.setItem('mir-email', user.correo) }))
 mockNuxtImport('navigateTo', () => navigate)
 
 beforeEach(() => {
@@ -115,5 +115,14 @@ it('muestra el error de consulta y conserva el correo', async () => {
   await vi.waitFor(() => expect(page.text()).toContain('No encontramos'))
   expect(page.get('input').element.value).toBe('auditor@mir.es')
   await flushPromises()
+  page.unmount()
+})
+
+it('lleva al jefe de calidad a su bandeja de revisión', async () => {
+  lookup.mockResolvedValue({ correo: 'jefa@mir.es', activo: true, rol: 'JEFE_CLD' })
+  const page = await mountPage()
+  await page.get('input').setValue('jefa@mir.es')
+  await page.get('form').trigger('submit')
+  await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith('/jefe-calidad/revision-mir'))
   page.unmount()
 })

@@ -41,10 +41,129 @@ export interface paths {
         patch: operations["actualizar_usuario_existente_usuarios__correo__patch"];
         trace?: never;
     };
+    "/mir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_mir_get"];
+        put?: never;
+        /** Crear */
+        post: operations["crear_mir_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mir/{codigo_mir}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar */
+        get: operations["consultar_mir__codigo_mir__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mir/{mir_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Dar De Baja */
+        delete: operations["dar_de_baja_mir__mir_id__delete"];
+        options?: never;
+        head?: never;
+        /** Actualizar */
+        patch: operations["actualizar_mir__mir_id__patch"];
+        trace?: never;
+    };
+    "/jefe-calidad/mir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_jefe_calidad_mir_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/jefe-calidad/mir/{mir_id}/asignar-tecnico": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Asignar Tecnico */
+        post: operations["asignar_tecnico_jefe_calidad_mir__mir_id__asignar_tecnico_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/jefe-calidad/mir/{mir_id}/denegar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Denegar */
+        post: operations["denegar_jefe_calidad_mir__mir_id__denegar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActualizarMirDTO */
+        ActualizarMirDTO: {
+            /** Descripcion */
+            descripcion?: string | null;
+            tipo?: components["schemas"]["TipoMir"] | null;
+            prioridad?: components["schemas"]["Prioridad"] | null;
+            /** Solucionado */
+            solucionado?: boolean | null;
+            /** Solucion Adoptada */
+            solucion_adoptada?: string | null;
+            /** Analisis Causas */
+            analisis_causas?: string | null;
+            /** Algo Mas Que Hacer */
+            algo_mas_que_hacer?: string | null;
+        };
         /** ActualizarUsuarioDTO */
         ActualizarUsuarioDTO: {
             /** Nombre */
@@ -54,11 +173,156 @@ export interface components {
             /** Departamento */
             departamento?: string | null;
         };
+        /** AsignarTecnicoCldDTO */
+        AsignarTecnicoCldDTO: {
+            /**
+             * Tecnico Cld Id
+             * Format: uuid
+             */
+            tecnico_cld_id: string;
+        };
+        /** Body_crear_mir_post */
+        Body_crear_mir_post: {
+            /** Datos */
+            datos: string;
+            /** Archivos */
+            archivos?: string[] | null;
+        };
+        /** CrearMirDTO */
+        CrearMirDTO: {
+            /** Descripcion */
+            descripcion: string;
+            tipo: components["schemas"]["TipoMir"];
+            /**
+             * Fecha Deteccion
+             * Format: date
+             */
+            fecha_deteccion: string;
+            /**
+             * Detectada Por Id
+             * Format: uuid
+             */
+            detectada_por_id: string;
+            /** Solucionado */
+            solucionado: boolean;
+            /** Solucion Adoptada */
+            solucion_adoptada?: string | null;
+            /** Analisis Causas */
+            analisis_causas?: string | null;
+            /** Algo Mas Que Hacer */
+            algo_mas_que_hacer?: string | null;
+            prioridad?: components["schemas"]["Prioridad"] | null;
+            /** Tipos Documento */
+            tipos_documento?: components["schemas"]["TipoDocumento"][];
+            /** Empresa Nombre */
+            empresa_nombre: string;
+            /** Persona Contacto */
+            persona_contacto: string;
+            /** Telefono */
+            telefono: string;
+            /** Correo Electronico */
+            correo_electronico: string;
+            /** Nombre Comercial */
+            nombre_comercial?: string | null;
+            /** Codigo Cliente */
+            codigo_cliente?: string | null;
+        };
+        /** DenegarMirDTO */
+        DenegarMirDTO: {
+            /**
+             * Actor Id
+             * Format: uuid
+             */
+            actor_id: string;
+        };
+        /**
+         * Estado
+         * @description Enum que represneta los distintos estados de un MIR.
+         * @enum {string}
+         */
+        Estado: "EN_REVISION" | "EN_PROGRESO" | "COMPLETADA" | "RECHAZADA" | "TERMINADA";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** MirDTO */
+        MirDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Codigo Mir */
+            codigo_mir: string;
+            /** Descripcion */
+            descripcion: string;
+            tipo: components["schemas"]["TipoMir"];
+            estado: components["schemas"]["Estado"];
+            /**
+             * Detectada Por Id
+             * Format: uuid
+             */
+            detectada_por_id: string;
+            /** Solucionado */
+            solucionado: boolean;
+            /** Solucion Adoptada */
+            solucion_adoptada: string | null;
+            /** Analisis Causas */
+            analisis_causas: string | null;
+            /** Algo Mas Que Hacer */
+            algo_mas_que_hacer: string | null;
+            prioridad: components["schemas"]["Prioridad"] | null;
+            /** Tecnico Cld Id */
+            tecnico_cld_id: string | null;
+            /** Responsable Resolucion Id */
+            responsable_resolucion_id: string | null;
+            /** Ejecutor Id */
+            ejecutor_id: string | null;
+            /** Fecha Prevista Resolucion */
+            fecha_prevista_resolucion: string | null;
+            /** Fecha Comprobacion Eficacia */
+            fecha_comprobacion_eficacia: string | null;
+            /** Resultado Comprobacion Eficacia */
+            resultado_comprobacion_eficacia: string | null;
+            /** Documento Ids */
+            documento_ids: string[];
+            /** Fecha Deteccion */
+            fecha_deteccion: string | null;
+            /** Empresa Nombre */
+            empresa_nombre: string | null;
+            /** Persona Contacto */
+            persona_contacto: string | null;
+            /** Telefono */
+            telefono: string | null;
+            /** Correo Electronico */
+            correo_electronico: string | null;
+            /** Nombre Comercial */
+            nombre_comercial: string | null;
+            /** Codigo Cliente */
+            codigo_cliente: string | null;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /**
+             * Modificado En
+             * Format: date-time
+             */
+            modificado_en: string;
+            /** Borrado */
+            borrado: boolean;
+            /** Borrado Por Id */
+            borrado_por_id: string | null;
+            /** Borrado En */
+            borrado_en: string | null;
+        };
+        /**
+         * Prioridad
+         * @enum {string}
+         */
+        Prioridad: "Baja" | "Media" | "Alta";
         /** RegistrarUsuarioDTO */
         RegistrarUsuarioDTO: {
             /** Correo */
@@ -83,6 +347,17 @@ export interface components {
          * @enum {string}
          */
         Rol: "DETECTOR" | "JEFE_CLD" | "TECNICO_CLD" | "RESPONSABLE_RESOLUCION" | "EJECUTOR" | "RSGI";
+        /**
+         * TipoDocumento
+         * @enum {string}
+         */
+        TipoDocumento: "pdf" | "word" | "excel" | "imagen" | "otro";
+        /**
+         * TipoMir
+         * @description Enumeración que representa los tipos de MIR.
+         * @enum {string}
+         */
+        TipoMir: "Mejora" | "Incidencia" | "Reclamación";
         /** UsuarioRead */
         UsuarioRead: {
             /**
@@ -264,6 +539,257 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UsuarioRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_mir_get: {
+        parameters: {
+            query?: {
+                detectada_por_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_mir_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_crear_mir_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consultar_mir__codigo_mir__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo_mir: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dar_de_baja_mir__mir_id__delete: {
+        parameters: {
+            query: {
+                actor_id: string;
+            };
+            header?: never;
+            path: {
+                mir_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    actualizar_mir__mir_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mir_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarMirDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_jefe_calidad_mir_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"][];
+                };
+            };
+        };
+    };
+    asignar_tecnico_jefe_calidad_mir__mir_id__asignar_tecnico_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mir_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AsignarTecnicoCldDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    denegar_jefe_calidad_mir__mir_id__denegar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mir_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DenegarMirDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MirDTO"];
                 };
             };
             /** @description Validation Error */

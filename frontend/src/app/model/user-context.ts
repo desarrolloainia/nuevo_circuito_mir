@@ -1,7 +1,15 @@
-import { restoreUser, useCurrentUser } from '@/entities/user'
+import { homeForRol, restoreUser, useCurrentUser, type Rol } from '@/entities/user'
 
-export default defineNuxtRouteMiddleware(async () => {
+declare module '#app' {
+  interface PageMeta {
+    // Rol dueño de la ruta; si no se indica, basta con tener sesión.
+    rol?: Rol
+  }
+}
+
+export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.server) return
-  if (useCurrentUser().value?.activo) return
-  if (!await restoreUser()) return navigateTo('/login')
+  const user = useCurrentUser().value?.activo ? useCurrentUser().value : await restoreUser()
+  if (!user) return navigateTo('/login')
+  if (to.meta.rol && user.rol !== to.meta.rol) return navigateTo(homeForRol(user.rol))
 })

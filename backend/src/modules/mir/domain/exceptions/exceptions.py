@@ -20,3 +20,7 @@ class EstadoInvalidoError(MirPersistenceError):
 
 class DatoObligatorioFaltanteError(Exception):
     """Falta un dato que la MIR exige (descripcion o datos de solucion)."""
+
+
+class ActorNoAutorizadoError(Exception):
+    """Quien dispara la transicion no tiene permiso para hacerlo."""

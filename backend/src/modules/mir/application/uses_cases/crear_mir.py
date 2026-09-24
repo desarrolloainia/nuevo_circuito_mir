@@ -1,6 +1,8 @@
 import logging
 from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from uuid import UUID, uuid4
+from zoneinfo import ZoneInfo
 
 from modules.archivos.application.ports.file_storage import FileStoragePort
 from modules.archivos.application.uses_cases.subir_documento import subir_documento
@@ -11,6 +13,7 @@ from modules.mir.domain.entities.mir import MIR
 from modules.mir.domain.Enum.estado import Estado
 from modules.mir.domain.Enum.prioridad import Prioridad
 from modules.mir.domain.Enum.tipo import TipoMir
+from modules.mir.domain.exceptions.exceptions import DatoObligatorioFaltanteError
 from modules.mir.domain.repository.mir_repository import MirRepository
 from shared.uow import UnitOfWork
 
@@ -25,13 +28,17 @@ class AdjuntoMir:
     tipo: TipoDocumento
 
 
-async def crear_mir_con_archivos(
+async def crear_mir(
     *,
-    codigo_mir: str,
     descripcion: str,
     tipo: TipoMir,
+    fecha_deteccion: date,
     detectada_por_id: UUID,
     solucionado: bool,
+    empresa_nombre: str,
+    persona_contacto: str,
+    telefono: str,
+    correo_electronico: str,
     adjuntos: list[AdjuntoMir],
     storage: FileStoragePort | None,
     documento_repositorio: DocumentoRepository,
@@ -41,12 +48,20 @@ async def crear_mir_con_archivos(
     solucion_adoptada: str | None = None,
     analisis_causas: str | None = None,
     algo_mas_que_hacer: str | None = None,
+    nombre_comercial: str | None = None,
+    codigo_cliente: str | None = None,
 ) -> MIR:
     if adjuntos and storage is None:
         raise ValueError("Se requiere almacenamiento para los adjuntos")
+    if fecha_deteccion > datetime.now(ZoneInfo("Europe/Madrid")).date():
+        raise DatoObligatorioFaltanteError("fecha_deteccion no puede ser futura")
     documentos: list[Documento] = []
     try:
         async with uow:
+            ahora = datetime.now(UTC)
+            anio = ahora.astimezone(ZoneInfo("Europe/Madrid")).year
+            numero = await mir_repositorio.reservar_numero(anio)
+            codigo_mir = f"{anio % 100:02d}{numero:03d}"
             for adjunto in adjuntos:
                 assert storage is not None
                 documentos.append(
@@ -76,6 +91,15 @@ async def crear_mir_con_archivos(
                 analisis_causas=analisis_causas,
                 algo_mas_que_hacer=algo_mas_que_hacer,
                 documentos=documentos,
+                fecha_deteccion=fecha_deteccion,
+                empresa_nombre=empresa_nombre,
+                persona_contacto=persona_contacto,
+                telefono=telefono,
+                correo_electronico=correo_electronico,
+                nombre_comercial=nombre_comercial,
+                codigo_cliente=codigo_cliente,
+                creado_en=ahora,
+                modificado_en=ahora,
             )
             _ = await mir_repositorio.create_mir(mir)
             await uow.commit()

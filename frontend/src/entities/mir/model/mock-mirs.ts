@@ -1,9 +1,7 @@
 import type { Mir } from './mir'
 
 /**
- * Datos ficticios de desarrollo: el backend aún no expone un endpoint de MIR
- * (`backend/src/modules/mir` es solo dominio). Sustituir por `entities/mir/api`
- * cuando exista la API real.
+ * Datos ficticios de desarrollo. Las pantallas usan la API real en entities/mir/api.
  */
 export const MOCK_MIRS: Mir[] = [
   {

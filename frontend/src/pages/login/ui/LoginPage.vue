@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { navigateTo, useHead } from '#imports'
-import { getUserByEmail, registerUser, rememberUser } from '@/entities/user'
+import { getUserByEmail, homeForRol, registerUser, rememberUser } from '@/entities/user'
 import { loginError, roleOptions, validateEmail, validateRegistration, type AccessState } from '../model/login'
 import MirWorkflowIllustration from './MirWorkflowIllustration.vue'
 
@@ -24,7 +24,7 @@ async function submit(): Promise<void> {
       return
     }
     rememberUser(user)
-    await navigateTo(user.rol === 'DETECTOR' ? '/mis-mir' : '/en-construccion')
+    await navigateTo(homeForRol(user.rol))
   } catch (cause) {
     error.value = loginError(cause)
   } finally {

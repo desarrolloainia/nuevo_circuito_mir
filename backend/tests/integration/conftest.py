@@ -15,9 +15,6 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from modules.mir.infrastructure.db.entities.contador_codigo_mir import (  # noqa: F401
-    ContadorCodigoMirORM,
-)
 from sqlalchemy import NullPool
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.asyncio import (
@@ -34,12 +31,15 @@ from modules.archivos.application.ports.file_storage import (
 from modules.archivos.infrastructure.db.entities.documento import (
     DocumentoORM,  # noqa: F401
 )
-from modules.mir.infrastructure.db.entities.mir import MirORM  # noqa: F401
+from modules.mir.infrastructure.db.entities.contadorcodigo import (  # noqa: F401
+    MIRCodigoContadorModel,
+)
+from modules.mir.infrastructure.db.entities.mir import MirOrm  # noqa: F401
 from modules.usuarios.Infrastructure.entities.usuario import UsuarioORM
 from shared.database import Base
 from shared.uow import UnitOfWork
 
-TABLAS = ("documentos", "mirs", "contadores_codigo_mir", "usuarios")
+TABLAS = ("documentos", "mirs", "mir_codigo_contadores", "usuarios")
 
 
 def _url_administracion() -> str:
@@ -180,7 +180,9 @@ def storage() -> StorageEnMemoria:
 
 @pytest.fixture
 def cliente(
-    crear_uow: Callable[[], UnitOfWork], storage: StorageEnMemoria
+    crear_uow: Callable[[], UnitOfWork],
+    storage: StorageEnMemoria,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> Iterator[TestClient]:
     from modules.archivos.api import router as subida_router
     from modules.mir.api import router as router_mir
@@ -192,6 +194,7 @@ def cliente(
     app.dependency_overrides[router_mir.get_uow] = crear_uow
     app.dependency_overrides[subida_router.get_uow] = crear_uow
     app.dependency_overrides[subida_router.get_storage] = lambda: storage
+    monkeypatch.setattr(router_mir, "get_storage", lambda: storage)
     with TestClient(app) as cliente:
         yield cliente
     app.dependency_overrides.clear()

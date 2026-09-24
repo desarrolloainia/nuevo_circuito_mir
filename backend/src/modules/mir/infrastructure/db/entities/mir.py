@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, String, Table, Text
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -88,6 +88,14 @@ class MirOrm(Base):
         lazy="selectin",
         passive_deletes=True,
     )
+
+    fecha_deteccion: Mapped[date | None] = mapped_column(Date, nullable=True)
+    empresa_nombre: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    persona_contacto: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    telefono: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    correo_electronico: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    nombre_comercial: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    codigo_cliente: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     modificado_en: Mapped[datetime] = mapped_column(

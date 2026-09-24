@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import uuid4
 
 import pytest
@@ -11,11 +12,15 @@ from modules.mir.domain.Enum.tipo import TipoMir
 
 def test_crear_mir_acepta_los_datos_que_recibe_el_caso_de_uso() -> None:
     datos = CrearMirDTO(
-        codigo_mir="26001",
         descripcion="Desviacion detectada.",
         tipo=TipoMir.INCIDENCIA,
+        fecha_deteccion=date(2026, 9, 20),
         detectada_por_id=uuid4(),
         solucionado=False,
+        empresa_nombre="Empresa Ficticia",
+        persona_contacto="Persona Ficticia",
+        telefono="0600123456",
+        correo_electronico="contacto@ejemplo.test",
     )
 
     assert datos.tipo is TipoMir.INCIDENCIA

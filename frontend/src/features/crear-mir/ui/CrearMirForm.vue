@@ -1,31 +1,48 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref, useTemplateRef } from 'vue'
 import type { FormError } from '@nuxt/ui'
-import { listActiveUsers, useCurrentUser, type User } from '@/entities/user'
+import { useCurrentUser } from '@/entities/user'
+import type { components } from '@/shared/schema'
 import { createMir } from '../api/create-mir'
 import { createEmptyMirForm, validateCreateMir, TIPO_MIR_OPTIONS } from '../model/create-mir-form'
 
-const emit = defineEmits<{ created: [], cancel: [] }>()
+const emit = defineEmits<{ created: [mir: components['schemas']['MirDTO']], cancel: [] }>()
 
 const currentUser = useCurrentUser()
 const state = reactive(createEmptyMirForm(currentUser.value?.id ?? '', currentUser.value?.nombre ?? ''))
 const pending = ref(false)
 const error = ref('')
-const users = ref<User[]>([])
+const form = useTemplateRef('mirForm')
 
-onMounted(async () => {
-  users.value = await listActiveUsers()
-})
+const serverFields: Record<string, string> = {
+  tipo: 'tipo', fecha_deteccion: 'fechaDeteccion', detectada_por_id: 'detectadoPorId',
+  descripcion: 'descripcion', empresa_nombre: 'empresaNombre', persona_contacto: 'personaContacto',
+  telefono: 'telefono', correo_electronico: 'correoElectronico', solucion_adoptada: 'solucionAdoptada',
+  analisis_causas: 'analisisCausas', algo_mas_que_hacer: 'algoMasQueHacer', tipos_documento: 'archivos'
+}
 
 async function submit(): Promise<void> {
   if (pending.value) return
   error.value = ''
   pending.value = true
   try {
-    await createMir(state)
-    emit('created')
-  } catch {
-    error.value = 'No pudimos guardar el registro. Inténtalo de nuevo.'
+    const created = await createMir(state)
+    emit('created', created)
+  } catch (cause: unknown) {
+    const detail = cause && typeof cause === 'object' && 'data' in cause
+      ? (cause as { data?: { detail?: unknown } }).data?.detail
+      : null
+    const serverErrors: FormError[] = Array.isArray(detail)
+      ? detail.flatMap((item: unknown) => {
+          const key = item && typeof item === 'object' && 'loc' in item && Array.isArray(item.loc)
+            ? item.loc.at(-1)
+            : null
+          const name = typeof key === 'string' ? serverFields[key] : undefined
+          return name ? [{ name, message: name === 'correoElectronico' ? 'El correo electrónico no es válido.' : 'Revisa este dato.' }] : []
+        })
+      : []
+    if (serverErrors.length) form.value?.setErrors(serverErrors)
+    else error.value = 'No pudimos guardar el registro. Inténtalo de nuevo.'
   } finally {
     pending.value = false
   }
@@ -38,6 +55,7 @@ function validate(formState: typeof state): FormError[] {
 
 <template>
   <UForm
+    ref="mirForm"
     :state="state"
     :validate="validate"
     class="space-y-6"
@@ -94,14 +112,12 @@ function validate(formState: typeof state): FormError[] {
           name="detectadoPorId"
           required
         >
-          <USelectMenu
-            v-model="state.detectadoPorId"
-            value-key="id"
-            :items="users.map(currentUserOption => ({ label: currentUserOption.correo, id: currentUserOption.id }))"
-            placeholder="Selecciona una persona"
+          <UInput
+            :model-value="currentUser?.correo ?? ''"
+            name="detectadoPorId"
             size="xl"
             class="w-full"
-            :disabled="pending"
+            disabled
           />
         </UFormField>
       </div>
@@ -228,23 +244,69 @@ function validate(formState: typeof state): FormError[] {
           :disabled="pending"
         />
       </UFormField>
+      <div
+        v-if="state.solucionada"
+        class="space-y-4"
+      >
+        <UFormField
+          label="Solución adoptada"
+          name="solucionAdoptada"
+          required
+        >
+          <UTextarea
+            v-model="state.solucionAdoptada"
+            name="solucionAdoptada"
+            :rows="3"
+            class="w-full"
+            :disabled="pending"
+          />
+        </UFormField>
+        <UFormField
+          label="Análisis de causas"
+          name="analisisCausas"
+          required
+        >
+          <UTextarea
+            v-model="state.analisisCausas"
+            name="analisisCausas"
+            :rows="3"
+            class="w-full"
+            :disabled="pending"
+          />
+        </UFormField>
+        <UFormField
+          label="¿Algo más que hacer?"
+          name="algoMasQueHacer"
+          required
+        >
+          <UTextarea
+            v-model="state.algoMasQueHacer"
+            name="algoMasQueHacer"
+            :rows="3"
+            class="w-full"
+            :disabled="pending"
+          />
+        </UFormField>
+      </div>
     </div>
 
     <div class="space-y-4 border-t border-default pt-6 opacity-0 animate-[fade-in-up_0.5s_ease-out_0.25s_forwards]">
       <p class="text-xs font-medium tracking-widest text-muted uppercase">
         Adjuntos
       </p>
-      <UFileUpload
-        v-model="state.archivos"
-        multiple
-        variant="area"
-        layout="list"
-        icon="i-lucide-paperclip"
-        label="Arrastra archivos o haz clic para adjuntar"
-        description="Cualquier formato, varios archivos"
-        class="w-full"
-        :disabled="pending"
-      />
+      <UFormField name="archivos">
+        <UFileUpload
+          v-model="state.archivos"
+          multiple
+          variant="area"
+          layout="list"
+          icon="i-lucide-paperclip"
+          label="Arrastra archivos o haz clic para adjuntar"
+          description="Hasta diez archivos de cualquier formato"
+          class="w-full"
+          :disabled="pending"
+        />
+      </UFormField>
     </div>
 
     <UAlert

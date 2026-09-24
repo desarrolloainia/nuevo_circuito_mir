@@ -1,19 +1,21 @@
 <script setup lang="ts">
+import { CerrarSesionButton } from '@/features/cerrar-sesion'
 import { navigateTo, useHead, useToast } from '#imports'
 import { CrearMirForm } from '@/features/crear-mir'
+import type { components } from '@/shared/schema'
 
 useHead({ title: 'Nuevo MIR · Circuito MIR' })
 
 const toast = useToast()
 
-async function onCreated() {
+async function onCreated(mir: components['schemas']['MirDTO']) {
   toast.add({
-    title: 'MIR creado',
+    title: `MIR ${mir.codigo_mir} creada`,
     description: 'Ya está en revisión.',
     color: 'success',
     icon: 'i-lucide-check'
   })
-  await navigateTo('/mis-mir')
+  await navigateTo(`/mir/${encodeURIComponent(mir.codigo_mir)}`)
 }
 </script>
 
@@ -30,13 +32,16 @@ async function onCreated() {
         />
         Circuito MIR
       </span>
-      <UColorModeButton />
+      <div class="flex items-center gap-1">
+        <UColorModeButton />
+        <CerrarSesionButton />
+      </div>
     </header>
 
     <section class="mx-auto w-full max-w-4xl flex-1 py-10">
       <UButton
         data-testid="volver-mis-mir"
-        to="/mis-mir"
+        to="/detector/mis-mir"
         variant="ghost"
         color="neutral"
         leading-icon="i-lucide-arrow-left"
@@ -54,7 +59,7 @@ async function onCreated() {
       <div class="mt-8 opacity-0 animate-[fade-in-up_0.5s_ease-out_0.25s_forwards]">
         <CrearMirForm
           @created="onCreated"
-          @cancel="navigateTo('/mis-mir')"
+          @cancel="navigateTo('/detector/mis-mir')"
         />
       </div>
     </section>

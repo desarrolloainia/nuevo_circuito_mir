@@ -1,18 +1,20 @@
 # Circuito MIR
 
-## Acceso y registro
+## Acceso y registro de MIR
 
 - `/login`: acceso por correo y pestaña de registro (correo, departamento y rol).
-- `/en-construccion`: destino provisional después de acceder o registrarse.
+- El detector accede a `/mis-mir`, crea registros en `/crear-mir` y consulta cada uno en `/mir/{codigo_mir}`. Los demás roles siguen en `/en-construccion`.
+- `POST /mir` recibe `datos` (JSON de `CrearMirDTO`) y `archivos` como multipart; `GET /mir?detectada_por_id=<id>` carga el historial del detector y `GET /mir/{codigo_mir}` carga el detalle.
+- El detalle muestra el número de adjuntos; el contrato actual no devuelve sus nombres ni ofrece descarga desde esta aplicación.
 - Backend configurable mediante `NUXT_PUBLIC_API_BASE` (por defecto `http://localhost:8000`).
-- Contratos generados en `src/shared/schema.ts`; consultas y registro en `src/entities/user/api`.
+- Contratos generados en `src/shared/schema.ts`; peticiones de usuario en `src/entities/user/api` y consultas de MIR en `src/entities/mir/api`.
 - El correo se recuerda durante la pestaña y se consulta de nuevo al recargar. No se crean tokens de autenticación.
 
 Las pantallas están en `src/pages`, la composición de rutas en `src/app/routes` y el transporte HTTP en `src/shared/api`. Los slices exponen sus imports mediante `index.ts`. Tailwind escanea todas las capas FSD desde `src/app/assets/css/main.css`.
 
 Validación: `pnpm test`, `pnpm lint`, `pnpm typecheck`, `pnpm build`.
 
-`pnpm exec steiger src` comprueba las fronteras FSD. Conserva dos diagnósticos de nombres de la estructura original: `src/app/assets` y el contrato generado `src/shared/schema.ts`.
+`pnpm exec steiger src` comprueba las fronteras FSD. Conserva los diagnósticos de nombres de la estructura original (`src/app/assets` y el contrato generado `src/shared/schema.ts`) y considera el slice existente `features/crear-mir` de un solo consumidor.
 
 ## Plantilla de origen
 

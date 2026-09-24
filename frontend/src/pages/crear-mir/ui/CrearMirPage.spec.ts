@@ -38,7 +38,7 @@ it('presenta el formulario como pantalla, con título y enlace de vuelta al list
   const page = await mountPage()
   await flushPromises()
   expect(page.text()).toContain('Nuevo MIR')
-  expect(page.get('[data-testid="volver-mis-mir"]').attributes('href')).toBe('/mis-mir')
+  expect(page.get('[data-testid="volver-mis-mir"]').attributes('href')).toBe('/detector/mis-mir')
   expect(page.find('textarea').exists()).toBe(true)
   page.unmount()
 })
@@ -48,13 +48,13 @@ it('vuelve al listado sin avisar cuando se cancela', async () => {
   await flushPromises()
   await page.get('[data-testid="cancelar-crear-mir"]').trigger('click')
   await flushPromises()
-  expect(navigate).toHaveBeenCalledWith('/mis-mir')
+  expect(navigate).toHaveBeenCalledWith('/detector/mis-mir')
   expect(toastAdd).not.toHaveBeenCalled()
   page.unmount()
 })
 
 it('confirma con un aviso y vuelve al listado cuando el MIR se ha creado', async () => {
-  createMir.mockResolvedValue({ tipo: 'Incidencia' })
+  createMir.mockResolvedValue({ codigo_mir: '26001' })
   const page = await mountPage()
   await flushPromises()
 
@@ -73,7 +73,7 @@ it('confirma con un aviso y vuelve al listado cuando el MIR se ha creado', async
 
   await page.get('form').trigger('submit')
 
-  await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith('/mis-mir'))
-  expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'MIR creado', color: 'success' }))
+  await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith('/mir/26001'))
+  expect(toastAdd).toHaveBeenCalledWith(expect.objectContaining({ title: 'MIR 26001 creada', color: 'success' }))
   page.unmount()
 })
